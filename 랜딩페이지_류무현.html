@@ -266,9 +266,9 @@
       <h1>일하는 동안에도,<br>우리 아이는 <em>안심</em>하고<br>따뜻하게.</h1>
       <p>등하원부터 놀이돌봄까지. 믿을 수 있는 돌봄 선생님을 앱으로 간편하게 만나보세요.</p>
       <div class="cta">
-        <a href="#checklist" class="btn btn-primary">1분 체크리스트 하고 무료체험 받기</a>
+        <a href="#checklist" class="btn btn-primary" data-cta="hero_checklist">1분 체크리스트 하고 무료체험 받기</a>
       </div>
-      <small>※ 가입 즉시 무료체험권 지급 · <a href="#" data-link="site" class="textlink">자체 사이트에서 먼저 둘러보기 →</a></small>
+      <small>※ 가입 즉시 무료체험권 지급 · <a href="#" data-link="site" data-cta="hero_site" class="textlink">자체 사이트에서 먼저 둘러보기 →</a></small>
     </div>
   </div>
 </section>
@@ -325,7 +325,7 @@
         <h3 id="clTitle">6가지 모두 저희가 챙겨드려요</h3>
         <p id="clDesc">아직 비어 있는 항목이에요. 무료체험으로 직접 확인해 보세요.</p>
         <ul class="cl-gaps" id="clGaps"></ul>
-        <a href="#download" class="btn btn-primary is-locked" id="clCta" aria-disabled="true">무료체험 하기</a>
+        <a href="#download" class="btn btn-primary is-locked" id="clCta" data-cta="checklist_trial" aria-disabled="true">무료체험 하기</a>
         <small class="cl-hint" id="clHint">체크리스트 6개를 모두 체크하면 눌러져요 (0/6)</small>
         <small class="cl-note">🎁 첫 가입 무료체험</small>
         <details class="cl-pdf">
@@ -336,7 +336,7 @@
               <input type="tel" name="phone" placeholder="연락처 (예: 010-0000-0000)" required>
               <input type="hidden" name="source" id="srcField">
               <label class="agree"><input type="checkbox" required> 개인정보 수집·이용에 동의합니다. (목적: 체크리스트·무료체험 안내)</label>
-              <button type="submit" class="btn btn-ghost-light">PDF 받기</button>
+              <button type="submit" class="btn btn-ghost-light" data-cta="checklist_pdf">PDF 받기</button>
             </form>
           </div>
           <div class="form-done" id="clDone">
@@ -495,11 +495,11 @@
       <li>🎟️ 후기 5회 쿠폰</li>
     </ul>
     <div class="store">
-      <a href="#" class="btn btn-primary" data-link="app-ios"> App Store에서 다운로드</a>
-      <a href="#" class="btn btn-primary" data-link="app-android">▶ Google Play에서 다운로드</a>
+      <a href="#" class="btn btn-primary" data-link="app-ios" data-cta="final_app_ios"> App Store에서 다운로드</a>
+      <a href="#" class="btn btn-primary" data-link="app-android" data-cta="final_app_android">▶ Google Play에서 다운로드</a>
     </div>
     <div class="store">
-      <a href="#" class="btn btn-ghost" data-link="site">자체 사이트에서 서비스 자세히 보기 →</a>
+      <a href="#" class="btn btn-ghost" data-link="site" data-cta="final_site">자체 사이트에서 서비스 자세히 보기 →</a>
     </div>
     <small style="color:#a39a90">앱 설치 후 가입하면 무료체험권이 자동 지급됩니다.</small>
   </div>
@@ -519,8 +519,8 @@
 
 <!-- 모바일 하단 고정 CTA -->
 <div class="sticky-cta">
-  <a href="#checklist" class="btn btn-primary">체크리스트 하기</a>
-  <a href="#download" class="btn btn-ghost">무료체험</a>
+  <a href="#checklist" class="btn btn-primary" data-cta="sticky_checklist">체크리스트 하기</a>
+  <a href="#download" class="btn btn-ghost" data-cta="sticky_trial">무료체험</a>
 </div>
 
 <script>
@@ -587,6 +587,44 @@
     box.querySelectorAll('select').forEach(function(s){s.addEventListener('change',calc)});
     calc();
   });
+  // CTA 노출·클릭 수집: data-cta 가 붙은 요소가 대상
+  // 같은 마크업의 패키지 버튼 2개는 패키지 박스 기준으로 이름을 붙인다 (package_care / package_hero)
+  document.querySelectorAll('.pbox').forEach(function(box){
+    var btn=box.parentNode.querySelector('a.btn-primary');
+    if(btn)btn.setAttribute('data-cta','package_'+box.getAttribute('data-pkg'));
+  });
+  function ctaProps(el){
+    var area=el.closest('header,section,footer,.sticky-cta');
+    return {
+      cta_id:el.getAttribute('data-cta'),
+      cta_text:el.textContent.replace(/\s+/g,' ').trim(),
+      cta_area:area?(area.id||area.className.split(' ')[0]||area.tagName.toLowerCase()):'unknown'
+    };
+  }
+  // 노출: CTA가 화면에 50% 이상 보이면 페이지 로드당 1회 'CTA Viewed'
+  if('IntersectionObserver' in window){
+    var ctaSeen={};
+    var ctaObs=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting)return;
+        var id=en.target.getAttribute('data-cta');
+        ctaObs.unobserve(en.target);
+        if(ctaSeen[id])return;
+        ctaSeen[id]=true;
+        track('CTA Viewed',ctaProps(en.target));
+      });
+    },{threshold:0.5});
+    document.querySelectorAll('[data-cta]').forEach(function(el){ctaObs.observe(el)});
+  }
+  // 클릭: 문서 전체에서 위임 처리. 잠긴 체크리스트 버튼은 cta_locked 로 구분
+  document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest('[data-cta]');
+    if(!el)return;
+    var p=ctaProps(el);
+    if(el.classList.contains('is-locked'))p.cta_locked=true;
+    track('CTA Clicked',p);
+  });
+
   // 유입 채널(맘카페/앱광고/자체사이트) 저장 : 예) ?utm_source=momcafe
   var src=new URLSearchParams(location.search).get('utm_source')||'direct';
   document.getElementById('srcField').value=src;
