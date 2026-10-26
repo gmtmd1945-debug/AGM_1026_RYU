@@ -237,9 +237,9 @@
     footer{padding-bottom:90px}
   }
 </style>
-<!-- Amplitude 프로젝트 ID 887069 -->
-<script src="https://cdn.amplitude.com/script/6227703274b7ec06121ce7185ca72b76.js"></script>
-<script>window.amplitude&&window.amplitude.init('6227703274b7ec06121ce7185ca72b76',{"fetchRemoteConfig":true,"autocapture":true});</script>
+<!-- Amplitude 프로젝트 ID %%AMPLITUDE_PROJECT_ID%% (빌드 시 .env 값 주입) -->
+<script src="https://cdn.amplitude.com/script/%%AMPLITUDE_API_KEY%%.js"></script>
+<script>window.amplitude&&window.amplitude.init('%%AMPLITUDE_API_KEY%%',{"fetchRemoteConfig":true,"autocapture":true});</script>
 </head>
 <body>
 

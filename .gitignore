@@ -4,3 +4,6 @@ screenshots/*
 
 # 비밀 값은 커밋 금지
 .env
+
+# 빌드 결과물
+dist/

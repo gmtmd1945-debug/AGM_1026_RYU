@@ -22,13 +22,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: 비밀 파일은 배포에서 제외
-        run: rm -f .env .env.example
+      - name: HTML에 Amplitude 값 주입 (dist/ 생성)
+        env:
+          AMPLITUDE_PROJECT_ID: ${{ vars.AMPLITUDE_PROJECT_ID }}
+          AMPLITUDE_API_KEY: ${{ vars.AMPLITUDE_API_KEY }}
+        run: bash build.sh
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
       - id: deployment
         uses: actions/deploy-pages@v4
