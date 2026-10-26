@@ -22,6 +22,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: 비밀 파일은 배포에서 제외
+        run: rm -f .env .env.example
       - uses: actions/configure-pages@v5
         with:
           enablement: true

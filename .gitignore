@@ -1,3 +1,6 @@
 # 반복 작업 스크린샷은 제외하고 최종본(iter16)만 올림
 screenshots/*
 !screenshots/iter16/
+
+# 비밀 값은 커밋 금지
+.env

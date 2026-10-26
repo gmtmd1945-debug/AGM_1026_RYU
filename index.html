@@ -237,6 +237,9 @@
     footer{padding-bottom:90px}
   }
 </style>
+<!-- Amplitude 프로젝트 ID 887069 -->
+<script src="https://cdn.amplitude.com/script/6227703274b7ec06121ce7185ca72b76.js"></script>
+<script>window.amplitude&&window.amplitude.init('6227703274b7ec06121ce7185ca72b76',{"fetchRemoteConfig":true,"autocapture":true});</script>
 </head>
 <body>
 
@@ -521,6 +524,7 @@
 </div>
 
 <script>
+  function track(name,props){try{window.amplitude&&window.amplitude.track(name,props)}catch(e){}}
   // 4가지 약속 카드
   var features=[
     ['🛡️','검증된 선생님','신원·경력 확인을 마친 분들만 활동해요.'],
@@ -553,8 +557,12 @@
     document.getElementById('clDesc').textContent=desc;
     document.getElementById('clChip').textContent=done===total?'체크 완료':'체크 결과 · '+done+'/'+total;
   }
-  boxes.forEach(function(b){b.addEventListener('change',renderChecklist)});
+  boxes.forEach(function(b){b.addEventListener('change',function(){
+    track('Checklist Toggled',{item:b.closest('label').getAttribute('data-fill'),checked:b.checked,done:boxes.filter(function(x){return x.checked}).length});
+    renderChecklist();
+  })});
   document.getElementById('clCta').addEventListener('click',function(e){
+    track('Checklist CTA Clicked',{locked:this.classList.contains('is-locked')});
     if(this.classList.contains('is-locked')){
       e.preventDefault();
       var h=document.getElementById('clHint');h.classList.remove('shake');void h.offsetWidth;h.classList.add('shake');
@@ -588,6 +596,7 @@
     e.preventDefault();
     var data=Object.fromEntries(new FormData(e.target).entries());
     console.log('lead',data);
+    track('Trial Form Submitted',{source:data.source});
     document.getElementById('clForm').style.display='none';
     document.getElementById('clDone').style.display='block';
   });
